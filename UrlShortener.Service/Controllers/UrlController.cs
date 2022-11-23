@@ -43,10 +43,12 @@ namespace UrlShortener.Service.Controllers
         public async Task<ActionResult<UrlReadDto>> GetUrlByIdAsync(Guid id)
         {
             var url = await _repository.GetByIdAsync(id);
-            if (url is null)
+            var validUrl = url.ValidateExpiration();
+            
+            if (validUrl == null)
                 return NotFound();
 
-            return Ok(url.AsReadDto());
+            return Ok(validUrl);
         }
 
         [HttpGet("[action]")]

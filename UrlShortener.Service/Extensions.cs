@@ -13,7 +13,7 @@ namespace UrlShortener.Service
                 ShortUrl = url.ShortUrl,
                 LongUrl = url.LongUrl,
                 ExpirationDate = url.CreationDate.Add(url.ExpiresIn),
-                ClassifiedAs= url.ClassifiedAs
+                ClassifiedAs = url.ClassifiedAs
             };
         }
 

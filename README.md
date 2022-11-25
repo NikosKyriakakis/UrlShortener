@@ -8,4 +8,4 @@ The other main service is the DB management, and is responsible for periodically
 
 Below is a simple diagram of the system's architecture
 
-<img title="URL Shortener Services" src="/images/URL_Shortener_Backend.jpg">
+<img title="URL Shortener Services" src="/Images/URL_Shortener_Backend.jpg">

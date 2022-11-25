@@ -32,8 +32,6 @@ namespace UrlShortener.Service.Controllers
                 var validUrl = url.ValidateExpiration();
                 if (validUrl != null)
                     validUrls.Add(validUrl);
-                else 
-                    await _repository.DeleteAsync(url.Id); 
             }
 
             return Ok(validUrls);
@@ -43,8 +41,10 @@ namespace UrlShortener.Service.Controllers
         public async Task<ActionResult<UrlReadDto>> GetUrlByIdAsync(Guid id)
         {
             var url = await _repository.GetByIdAsync(id);
+            if (url == null)
+                return NotFound();
+
             var validUrl = url.ValidateExpiration();
-            
             if (validUrl == null)
                 return NotFound();
 
@@ -54,11 +54,17 @@ namespace UrlShortener.Service.Controllers
         [HttpGet("[action]")]
         public async Task<ActionResult<UrlReadDto>> GetUrlByShort([Required] [FromQuery] string shortUrl)
         {
-            var url = (await _repository.GetAllAsync(x => x.ShortUrl == shortUrl)).FirstOrDefault();
-            if (url is null)
+            var url = (await _repository
+                .GetAllAsync(x => x.ShortUrl == shortUrl))
+                .FirstOrDefault();
+            if (url == null)
                 return NotFound();
 
-            return url.AsReadDto();
+            var validUrl = url.ValidateExpiration();
+            if (validUrl == null)
+                return NotFound();
+
+            return validUrl;
         }
 
         [HttpPost]
@@ -95,7 +101,7 @@ namespace UrlShortener.Service.Controllers
         public async Task<IActionResult> DeleteAsync(Guid id)
         {
             var url = await GetUrlByIdAsync(id);
-            if (url is null)
+            if (url == null)
                 return NotFound();
 
             await _repository.DeleteAsync(id);

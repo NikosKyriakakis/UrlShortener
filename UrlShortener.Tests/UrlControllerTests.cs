@@ -17,7 +17,7 @@ namespace UrlShortener.Tests
         public async Task GetUrlByIdAsync_WithUnexistingUrl_ReturnsNotFound()
         {
             _repositoryStub
-                .Setup(_ => _.GetByIdAsync(It.IsAny<Guid>()))
+                .Setup(repo => repo.GetByIdAsync(It.IsAny<Guid>()))
                 .ReturnsAsync((Url)null);
 
             var controller = new UrlController(_repositoryStub.Object);

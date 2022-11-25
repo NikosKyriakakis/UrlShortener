@@ -59,10 +59,5 @@ namespace Repository.Pattern.MongoDB
 
             await _database.DeleteOneAsync(filter);
         }
-
-        public async Task DeleteAsync(Expression<Func<TEntity, bool>> filter)
-        {
-            await _database.DeleteManyAsync(filter);
-        }
     }
 }

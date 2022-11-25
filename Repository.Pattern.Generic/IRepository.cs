@@ -11,6 +11,5 @@ namespace Repository.Pattern.Generic
         Task PostAsync(TEntity entity);
         Task UpdateAsync(TEntity entity);
         Task DeleteAsync(Guid id);
-        Task DeleteManyAsync(Expression<Func<TEntity, bool>> filter);
     }
 }

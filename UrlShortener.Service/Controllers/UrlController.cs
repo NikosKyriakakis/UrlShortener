@@ -2,9 +2,9 @@
 using Repository.Pattern.Generic;
 using shortid;
 using System.ComponentModel.DataAnnotations;
+using UrlClassifier_ML;
 using UrlShortener.Service.Dtos;
 using UrlShortener.Service.Models;
-using UrlShortener_Service;
 
 
 namespace UrlShortener.Service.Controllers
@@ -73,15 +73,15 @@ namespace UrlShortener.Service.Controllers
             if (!Uri.IsWellFormedUriString(createDto.LongUrl, UriKind.Absolute))
                 return BadRequest("Invalid URL provided ...");
 
-            MLModel.ModelInput sampleData = new()
+            UrlClassifier.ModelInput sampleData = new()
             {
                 Url = createDto.LongUrl
             };
 
-            var predictionResult = MLModel.Predict(sampleData);
+            var predictionResult = UrlClassifier.Predict(sampleData);
 
             var url = createDto.AsUrl();
-            url.ClassifiedAs = predictionResult.PredictedLabel;
+            url.ClassifiedAs = predictionResult.Prediction;
 
             var existingUrls = await _repository.GetAllAsync(x => x.LongUrl == url.LongUrl);
             if (existingUrls.Count > 0)

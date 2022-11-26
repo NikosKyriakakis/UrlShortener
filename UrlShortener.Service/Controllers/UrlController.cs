@@ -85,7 +85,14 @@ namespace UrlShortener.Service.Controllers
 
             var existingUrls = await _repository.GetAllAsync(x => x.LongUrl == url.LongUrl);
             if (existingUrls != null)
-                return Ok(existingUrls.First().AsReadDto());
+            {
+                var existingUrl = existingUrls.First();
+                var existingDto = existingUrl.ValidateExpiration();
+                if (existingDto != null)
+                    return Ok(existingDto);
+                else
+                    await _repository.DeleteAsync(existingUrl.Id);
+            }
 
             url.ShortUrl = BaseUrl + ShortId.Generate();
             url.CreationDate = DateTime.UtcNow;

@@ -22,7 +22,7 @@ namespace UrlShortener.Service.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<UrlReadDto>>> GetUrlsAsync()
+        public async Task<IActionResult> GetUrlsAsync()
         {
             var urls = await _repository.GetAllAsync();
             var validUrls = new List<UrlReadDto>();
@@ -38,7 +38,7 @@ namespace UrlShortener.Service.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<UrlReadDto>> GetUrlByIdAsync(Guid id)
+        public async Task<IActionResult> GetUrlByIdAsync(Guid id)
         {
             var url = await _repository.GetByIdAsync(id);
             if (url == null)
@@ -52,23 +52,23 @@ namespace UrlShortener.Service.Controllers
         }
 
         [HttpGet("[action]")]
-        public async Task<ActionResult<UrlReadDto>> GetUrlByShort([Required] [FromQuery] string shortUrl)
+        public async Task<IActionResult> GetUrlByShort([Required][FromQuery] string shortUrl)
         {
-            var url = (await _repository
-                .GetAllAsync(x => x.ShortUrl == shortUrl))
-                .FirstOrDefault();
-            if (url == null)
+            var urls = await _repository.GetAllAsync(x => x.ShortUrl == shortUrl);
+            if (urls == null || !urls.Any())
                 return NotFound();
+
+            var url = urls.First();
 
             var validUrl = url.ValidateExpiration();
             if (validUrl == null)
                 return NotFound();
 
-            return validUrl;
+            return Ok(validUrl);
         }
 
         [HttpPost]
-        public async Task<ActionResult> PostAsync(UrlCreateDto createDto)
+        public async Task<IActionResult> PostAsync(UrlCreateDto createDto)
         {
             if (!Uri.IsWellFormedUriString(createDto.LongUrl, UriKind.Absolute))
                 return BadRequest("Invalid URL provided ...");
@@ -84,8 +84,8 @@ namespace UrlShortener.Service.Controllers
             url.ClassifiedAs = predictionResult.Prediction;
 
             var existingUrls = await _repository.GetAllAsync(x => x.LongUrl == url.LongUrl);
-            if (existingUrls.Count > 0)
-                return Ok(existingUrls.First());
+            if (existingUrls != null)
+                return Ok(existingUrls.First().AsReadDto());
 
             url.ShortUrl = BaseUrl + ShortId.Generate();
             url.CreationDate = DateTime.UtcNow;
@@ -100,7 +100,7 @@ namespace UrlShortener.Service.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteAsync(Guid id)
         {
-            var url = await GetUrlByIdAsync(id);
+            var url = await _repository.GetByIdAsync(id);
             if (url == null)
                 return NotFound();
 

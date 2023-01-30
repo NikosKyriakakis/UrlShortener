@@ -1,14 +1,12 @@
 using Microsoft.OpenApi.Any;
 using Microsoft.OpenApi.Models;
 using Newtonsoft.Json.Serialization;
+using Repository.Pattern.Generic;
 using Repository.Pattern.MongoDb.Settings;
 using Repository.Pattern.MongoDB;
 using UrlShortener.Service.Models;
 
 var builder = WebApplication.CreateBuilder(args);
-
-// Add services to the container.
-
 var serviceSettings = builder.Configuration.GetSection(nameof(ServiceSettings)).Get<ServiceSettings>();
 
 builder.Services.AddMongo()
@@ -24,7 +22,6 @@ builder.Services.AddMvc(options =>
     options.SuppressAsyncSuffixInActionNames = false;
 });
 
-builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c => c.MapType<TimeSpan>(() => new OpenApiSchema
 {
@@ -34,7 +31,6 @@ builder.Services.AddSwaggerGen(c => c.MapType<TimeSpan>(() => new OpenApiSchema
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -42,9 +38,16 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
 app.UseAuthorization();
-
 app.MapControllers();
+
+app.MapFallback(async (IRepository<Url> repository, HttpContext ctx) =>
+{
+    var path = ctx.Request.Path.ToUriComponent().Remove(0, 5);
+    var requestedUrl = await repository.GetAsync(x => x.ShortUrl == path);
+    if (requestedUrl == null) return Results.BadRequest();
+
+    return Results.Redirect(requestedUrl.LongUrl);
+});
 
 app.Run();

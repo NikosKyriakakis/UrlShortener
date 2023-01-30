@@ -7,7 +7,7 @@ namespace Repository.Pattern.Generic
         Task<IReadOnlyCollection<TEntity>> GetAllAsync();
         Task<IReadOnlyCollection<TEntity>> GetAllAsync(Expression<Func<TEntity, bool>> filter);
         Task<TEntity> GetByIdAsync(Guid id);
-        Task<TEntity> GetByIdAsync(Guid id, Expression<Func<TEntity, bool>> filter);
+        Task<TEntity> GetAsync(Expression<Func<TEntity, bool>> filter);
         Task PostAsync(TEntity entity);
         Task UpdateAsync(TEntity entity);
         Task DeleteAsync(Guid id);

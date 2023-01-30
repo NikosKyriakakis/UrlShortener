@@ -31,7 +31,7 @@ namespace Repository.Pattern.MongoDB
             return await _database.Find(filter).FirstOrDefaultAsync();
         }
 
-        public async Task<TEntity> GetByIdAsync(Guid id, Expression<Func<TEntity, bool>> filter)
+        public async Task<TEntity> GetAsync(Expression<Func<TEntity, bool>> filter)
         {
             return await _database.Find(filter).FirstOrDefaultAsync();
         }

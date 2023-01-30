@@ -84,7 +84,7 @@ namespace UrlShortener.Service.Controllers
             url.ClassifiedAs = predictionResult.Prediction;
 
             var existingUrls = await _repository.GetAllAsync(x => x.LongUrl == url.LongUrl);
-            if (existingUrls != null)
+            if (existingUrls.Count != 0)
             {
                 var existingUrl = existingUrls.First();
                 var existingDto = existingUrl.ValidateExpiration();
